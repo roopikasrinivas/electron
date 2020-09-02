@@ -1,7 +1,8 @@
 import * as url from 'url';
 import { Readable, Writable } from 'stream';
-import { app } from 'electron/main';
+import { app, deprecate } from 'electron/main';
 import type { ClientRequestConstructorOptions, UploadProgress } from 'electron/main';
+
 const {
   isValidHeaderName,
   isValidHeaderValue,
@@ -237,13 +238,17 @@ function parseOptions (optionsIn: ClientRequestConstructorOptions | string): Nod
     throw new TypeError('headers must be an object');
   }
 
+  if (Object.prototype.hasOwnProperty.call(options, 'useSessionCookies')) {
+    deprecate.log('The \'useSessionCookies\' option is deprecated. Use \'credentials\' instead.');
+  }
+
   const urlLoaderOptions: NodeJS.CreateURLLoaderOptions & { redirectPolicy: RedirectPolicy, extraHeaders: Record<string, string | string[]> } = {
     method: (options.method || 'GET').toUpperCase(),
     url: urlStr,
     redirectPolicy,
     extraHeaders: options.headers || {},
     body: null as any,
-    useSessionCookies: options.useSessionCookies || false
+    credentials: options.credentials || (options.useSessionCookies ? 'include' : 'omit-cookies')
   };
   for (const [name, value] of Object.entries(urlLoaderOptions.extraHeaders!)) {
     if (!isValidHeaderName(name)) {

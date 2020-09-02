@@ -12,6 +12,41 @@ This document uses the following convention to categorize breaking changes:
 - **Deprecated:** An API was marked as deprecated. The API will continue to function, but will emit a deprecation warning, and will be removed in a future release.
 - **Removed:** An API or feature was removed, and is no longer supported by Electron.
 
+## Planned Breaking API Changes (13.0)
+
+### Removed: `net.request({ useSessionCookies })`
+
+> **NOTE:** This change affects the default behavior of `net.request()`.
+
+This has been replaced by the `net.request({ credentials })` option.
+
+```js
+// Removed in Electron 13
+net.request({ useSessionCookies: true })
+// Replace with
+net.request({ credentials: 'include' })
+```
+
+### Behavior Changed: `net.request()`
+
+Starting with Electron 13, the default behavior of `net.request()` when
+`credentials` is not specified is `credentials: 'omit'`. This corresponds to
+the [option in `fetch()` by the same
+name](https://fetch.spec.whatwg.org/#concept-request-credentials-mode).
+
+The main difference is that when the `credentials` option is not specified (or
+when it is explicitly set to `omit`, the default), authentication entries will
+no longer be sent in response to a 401 Not Authorized response. Additionally,
+the `"login"` event will no longer be emitted when a 401 Not Authorized
+response is received: instead, the 401 response will be returned to the caller.
+See [the Fetch spec](https://fetch.spec.whatwg.org/#credentials) for the
+definition of what is omitted in this mode.
+
+There is no longer any way to offer authentication credentials from a session
+while omitting cookies.
+
+Proxy authentication behavior remains unchanged.
+
 ## Planned Breaking API Changes (12.0)
 
 ### Default Changed: `contextIsolation` defaults to `true`
@@ -49,6 +84,25 @@ will be compressed.
 If your crash ingestion server does not support compressed payloads, you can
 turn off compression by specifying `{ compress: false }` in the crash reporter
 options.
+
+### Deprecated: `net.request({ useSessionCookies })`
+
+As the `useSessionCookies` option's behavior now also controls authentication
+credentials, the name is no longer accurate. Instead, use the new `credentials`
+option for `net.request`.
+
+```js
+// Deprecated in Electron 12
+net.request({ useSessionCookies: true })
+// Replace with
+net.request({ credentials: 'include' })
+```
+
+Also note that the behavior of `credentials: 'omit'`, which will become the
+default behavior in Electron 13, is subtly different to the behavior of
+`useSessionCookies: false`. `credentials: 'omit'` will omit both cookies _and_
+authentication data, while `useSessionCookies: false` will omit cookies but
+include authentication data.
 
 ## Planned Breaking API Changes (11.0)
 

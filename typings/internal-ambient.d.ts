@@ -93,7 +93,7 @@ declare namespace NodeJS {
     method: string;
     url: string;
     extraHeaders?: Record<string, string>;
-    useSessionCookies?: boolean;
+    credentials?: 'include' | 'omit';
     body: Uint8Array | BodyFunc;
     session?: Electron.Session;
     partition?: string;

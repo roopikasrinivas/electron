@@ -47,6 +47,29 @@ struct Converter<network::mojom::HttpRawHeaderPairPtr> {
   }
 };
 
+template <>
+struct Converter<network::mojom::CredentialsMode> {
+  static bool FromV8(v8::Isolate* isolate,
+                     v8::Local<v8::Value> val,
+                     network::mojom::CredentialsMode* out);
+  std::string mode;
+  if (!ConvertFromV8(isolate, val, &mode))
+    return false;
+  if (mode == "omit")
+    *out = network::mojom::CredentialsMode::kOmit;
+  else if (mode == "omit-cookies")
+    *out = network::mojom::CredentialsMode::kOmitCookies_Electron;
+  else if (mode == "include")
+    *out = network::mojom::CredentialsMode::kInclude;
+  else
+    // "same-origin" is technically a member of this enum as well, but it
+    // doesn't make sense in the context of `net.request()`, so don't convert
+    // it.
+    return false;
+  return true;
+}
+};  // namespace gin
+
 }  // namespace gin
 
 namespace electron {
@@ -353,6 +376,7 @@ gin::Handle<SimpleURLLoaderWrapper> SimpleURLLoaderWrapper::Create(
   opts.Get("method", &request->method);
   opts.Get("url", &request->url);
   opts.Get("referrer", &request->referrer);
+  opts.Get("credentials", &request->credentials_mode);
   std::map<std::string, std::string> extra_headers;
   if (opts.Get("extraHeaders", &extra_headers)) {
     for (const auto& it : extra_headers) {
@@ -363,12 +387,6 @@ gin::Handle<SimpleURLLoaderWrapper> SimpleURLLoaderWrapper::Create(
       }
       request->headers.SetHeader(it.first, it.second);
     }
-  }
-
-  bool use_session_cookies = false;
-  opts.Get("useSessionCookies", &use_session_cookies);
-  if (!use_session_cookies) {
-    request->load_flags |= net::LOAD_DO_NOT_SEND_COOKIES;
   }
 
   // Chromium filters headers using browser rules, while for net module we have

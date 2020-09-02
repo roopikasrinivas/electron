@@ -543,7 +543,7 @@ describe('net module', () => {
       const urlRequest = net.request({
         url: serverUrl,
         session: sess,
-        useSessionCookies: true
+        credentials: 'include'
       });
       const response = await getResponse(urlRequest);
       expect(response.headers['x-cookie']).to.equal(`wild_cookie=${cookieVal}`);
@@ -562,7 +562,7 @@ describe('net module', () => {
       const urlRequest = net.request({
         url: serverUrl,
         session: sess,
-        useSessionCookies: true
+        credentials: 'include'
       });
       await collectStreamBody(await getResponse(urlRequest));
       cookies = await sess.cookies.get({});
@@ -595,7 +595,7 @@ describe('net module', () => {
         const urlRequest = net.request({
           url: serverUrl,
           session: sess,
-          useSessionCookies: true
+          credentials: 'include'
         });
         const response = await getResponse(urlRequest);
         expect(response.headers['x-cookie']).to.equal('undefined');
@@ -616,7 +616,7 @@ describe('net module', () => {
         const urlRequest2 = net.request({
           url: serverUrl,
           session: sess,
-          useSessionCookies: true
+          credentials: 'include'
         });
         const response2 = await getResponse(urlRequest2);
         expect(response2.headers['x-cookie']).to.equal('same=site');
@@ -656,7 +656,7 @@ describe('net module', () => {
       const urlRequest = net.request({
         url: serverUrl,
         session: sess,
-        useSessionCookies: true
+        credentials: 'include'
       });
       urlRequest.on('redirect', (status, method, url, headers) => {
         // The initial redirect response should have received the 127 value here
