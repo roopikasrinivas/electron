@@ -389,10 +389,12 @@ node::Environment* NodeBindings::CreateEnvironment(
   isolate_data_ =
       node::CreateIsolateData(context->GetIsolate(), uv_loop_, platform);
 
-  uint64_t flags = node::EnvironmentFlags::kDefaultFlags | node::EnvironmentFlags::kNoInitializeInspector;
+  uint64_t flags = node::EnvironmentFlags::kDefaultFlags |
+                   node::EnvironmentFlags::kNoInitializeInspector;
 
-  node::Environment* env = node::CreateEnvironment(
-      isolate_data_, context, args, exec_args, (node::EnvironmentFlags::Flags) flags);
+  node::Environment* env =
+      node::CreateEnvironment(isolate_data_, context, args, exec_args,
+                              (node::EnvironmentFlags::Flags)flags);
   DCHECK(env);
 
   // Clean up the global _noBrowserGlobals that we unironically injected into
