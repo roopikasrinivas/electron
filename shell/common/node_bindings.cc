@@ -244,18 +244,6 @@ namespace electron {
 
 namespace {
 
-// Convert the given vector to an array of C-strings. The strings in the
-// returned vector are only guaranteed valid so long as the vector of strings
-// is not modified.
-std::unique_ptr<const char* []> StringVectorToArgArray(
-    const std::vector<std::string>& vector) {
-  std::unique_ptr<const char*[]> array(new const char*[vector.size()]);
-  for (size_t i = 0; i < vector.size(); ++i) {
-    array[i] = vector[i].c_str();
-  }
-  return array;
-}
-
 base::FilePath GetResourcesPath() {
 #if defined(OS_MAC)
   return MainApplicationBundlePath().Append("Contents").Append("Resources");
@@ -392,16 +380,19 @@ node::Environment* NodeBindings::CreateEnvironment(
   if (browser_env_ != BrowserEnvironment::BROWSER)
     global.Set("_noBrowserGlobals", true);
 
+  std::vector<std::string> exec_args;
   base::FilePath resources_path = GetResourcesPath();
   std::string init_script = "electron/js2c/" + process_type + "_init";
 
   args.insert(args.begin() + 1, init_script);
 
-  std::unique_ptr<const char*[]> c_argv = StringVectorToArgArray(args);
   isolate_data_ =
       node::CreateIsolateData(context->GetIsolate(), uv_loop_, platform);
+
+  uint64_t flags = node::EnvironmentFlags::kDefaultFlags | node::EnvironmentFlags::kNoInitializeInspector;
+
   node::Environment* env = node::CreateEnvironment(
-      isolate_data_, context, args.size(), c_argv.get(), 0, nullptr);
+      isolate_data_, context, args, exec_args, (node::EnvironmentFlags::Flags) flags);
   DCHECK(env);
 
   // Clean up the global _noBrowserGlobals that we unironically injected into
