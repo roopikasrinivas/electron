@@ -45,6 +45,18 @@
                    selector:@selector(isResuming:)
                        name:NSWorkspaceDidWakeNotification
                      object:nil];
+    // A notification that the workspace posts when the user session becomes
+    // active.
+    [distCenter addObserver:self
+                   selector:@selector(onUserBecameActive:)
+                       name:NSWorkspaceSessionDidBecomeActiveNotification
+                     object:nil];
+    // A notification that the workspace posts when the user session becomes
+    // inactive.
+    [distCenter addObserver:self
+                   selector:@selector(onUserBecameInactive:)
+                       name:NSWorkspaceSessionDidResignActiveNotification
+                     object:nil];
   }
   return self;
 }
@@ -79,6 +91,18 @@
 - (void)onScreenUnlocked:(NSNotification*)notification {
   for (auto* emitter : self->emitters) {
     emitter->Emit("unlock-screen");
+  }
+}
+
+- (void)onUserBecameActive:(NSNotification*)notification {
+  for (auto* emitter : self->emitters) {
+    emitter->Emit("user-became-active");
+  }
+}
+
+- (void)onUserBecameInactive:(NSNotification*)notification {
+  for (auto* emitter : self->emitters) {
+    emitter->Emit("user-became-inactive");
   }
 }
 

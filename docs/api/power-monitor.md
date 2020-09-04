@@ -39,6 +39,14 @@ Emitted when the system is about to lock the screen.
 
 Emitted as soon as the systems screen is unlocked.
 
+### Event: 'user-became-active' _macOS_
+
+Emitted when a login session is activated. See [documentation](https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPMultipleUsers/Concepts/UserSwitchNotifications.html#//apple_ref/doc/uid/20002210-CJBJDAGF) for more information.
+
+### Event: 'user-became-inactive' _macOS_
+
+Emitted when a login session is deactivated. See [documentation](https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPMultipleUsers/Concepts/UserSwitchNotifications.html#//apple_ref/doc/uid/20002210-CJBJDAGF) for more information.
+
 ## Methods
 
 The `powerMonitor` module has the following methods:
